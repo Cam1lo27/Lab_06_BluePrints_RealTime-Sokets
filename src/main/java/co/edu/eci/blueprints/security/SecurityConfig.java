@@ -30,6 +30,9 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/auth/login").permitAll()
+                // Handshake WebSocket: el navegador no puede enviar headers aquí;
+                // el JWT se valida en el frame STOMP CONNECT (StompAuthChannelInterceptor).
+                .requestMatchers("/ws-blueprints/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/**").hasAnyAuthority("SCOPE_blueprints.read", "SCOPE_blueprints.write")
                 .anyRequest().authenticated()

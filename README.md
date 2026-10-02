@@ -217,7 +217,43 @@ Todos los endpoints exigen un JWT (`POST /auth/login`).
 
 ### Punto 2 — Tiempo real con STOMP (backend)
 
-_Pendiente._
+Se eligió **STOMP (Spring Boot)** y se integró en el mismo backend de la API (puerto 8080),
+para que cada punto dibujado en tiempo real también quede **guardado en PostgreSQL**.
+
+| Elemento | Valor |
+|---|---|
+| Endpoint WebSocket | `ws://localhost:8080/ws-blueprints` |
+| Cliente → servidor | `SEND /app/draw` con `{ "author", "name", "point": { "x", "y" } }` |
+| Servidor → clientes | `/topic/blueprints.{author}.{name}` con `{ "author", "name", "points": [...] }` |
+| Errores (solo al emisor) | `/user/queue/errors` |
+| Autenticación | Header `Authorization: Bearer <JWT>` en el frame `CONNECT` |
+| Health check | `GET /actuator/health` |
+
+**Decisiones de diseño**
+
+- **Un tópico por plano** (`blueprints.{author}.{name}`): los clientes de un plano no reciben los puntos de otro (aislamiento).
+- **El servidor guarda el punto y difunde el estado completo** del plano (todos los puntos), no solo el último. Así, cualquier cliente que se conecte tarde o pierda un mensaje queda sincronizado con el siguiente.
+- **JWT en el `CONNECT`**: se reutiliza el mismo token de la API REST. Sin token válido la conexión se rechaza, así nadie puede escribir en la base sin iniciar sesión.
+- **Validación del payload**: `author`, `name` y `point` son obligatorios y las coordenadas deben estar en `0..10000`. Si algo es inválido, el error se le envía solo al cliente que lo mandó.
+- **Logs `[RT]`** de conexión, suscripción, dibujo, desconexión y rechazos, para observabilidad.
+
+Archivos: [`src/main/java/co/edu/eci/blueprints/realtime/`](src/main/java/co/edu/eci/blueprints/realtime/).
+
+**2.1 Health check — `GET /actuator/health` → `UP`**
+
+![Health check](images/p2-health.png)
+
+**2.2 Pruebas automáticas del tiempo real (`mvn test`)**
+
+La prueba `BlueprintRealtimeTest` conecta tres clientes STOMP reales. Verifica que el punto llegue a los dos clientes del mismo plano, que **no** llegue al cliente suscrito a otro plano y que quede guardado. También verifica que **sin token no se pueda conectar**.
+
+![Tests STOMP en verde](images/p2-tests.png)
+
+**2.3 Logs de tiempo real**
+
+Conexión, suscripción a tópicos, dibujo de un punto, desconexión y rechazo de un cliente sin token:
+
+![Logs RT](images/p2-logs.png)
 
 ### Punto 3 — Front con CRUD y tiempo real
 
