@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  # Datos de conexión a PostgreSQL (deben coincidir con compose.yaml) — traído del Lab 3
+  datasource:
+    url: jdbc:postgresql://localhost:5432/blueprints
+    username: arsw
+    password: arsw
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  profiles:
+    active: postgres,redundancy
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://auth.example.com/.well-known/jwks.json
+  main:
+    allow-bean-definition-overriding: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+blueprints:
+  security:
+    issuer: "https://decsis-eci/blueprints"
+    token-ttl-seconds: 3600
