@@ -71,7 +71,7 @@ public class BlueprintsAPIController {
         try {
             return ResponseEntity.ok(ApiResponse.ok(services.getBlueprintsByAuthor(author)));
         } catch (BlueprintNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(400, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(404, e.getMessage()));
         }
     }
 
@@ -152,6 +152,65 @@ public class BlueprintsAPIController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(404, e.getMessage()));
         }
     }
+
+    @Operation(
+            summary = "Actualizar un blueprint",
+            description = "Reemplaza todos los puntos del plano. Requiere un token con scope `blueprints.write`.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200", description = "Plano actualizado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401", description = "Token ausente o expirado", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "403", description = "Falta el scope blueprints.write", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404", description = "No existe un plano con ese autor y nombre", content = @Content)
+    })
+    @PutMapping("/{author}/{bpname}")
+    @PreAuthorize("hasAuthority('SCOPE_blueprints.write')")
+    public ResponseEntity<ApiResponse<Blueprint>> update(
+            @Parameter(description = "Autor del plano", example = "john") @PathVariable String author,
+            @Parameter(description = "Nombre del plano", example = "casa") @PathVariable String bpname,
+            @Valid @RequestBody UpdateBlueprintRequest req) {
+        try {
+            return ResponseEntity.ok(ApiResponse.ok(services.updateBlueprint(author, bpname, req.points())));
+        } catch (BlueprintNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(404, e.getMessage()));
+        }
+    }
+
+    @Operation(
+            summary = "Eliminar un blueprint",
+            description = "Requiere un token con scope `blueprints.write`.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200", description = "Plano eliminado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401", description = "Token ausente o expirado", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "403", description = "Falta el scope blueprints.write", content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404", description = "No existe un plano con ese autor y nombre", content = @Content)
+    })
+    @DeleteMapping("/{author}/{bpname}")
+    @PreAuthorize("hasAuthority('SCOPE_blueprints.write')")
+    public ResponseEntity<ApiResponse<Void>> delete(
+            @Parameter(description = "Autor del plano", example = "john") @PathVariable String author,
+            @Parameter(description = "Nombre del plano", example = "casa") @PathVariable String bpname) {
+        try {
+            services.deleteBlueprint(author, bpname);
+            return ResponseEntity.ok(ApiResponse.deleted());
+        } catch (BlueprintNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(404, e.getMessage()));
+        }
+    }
+
+    @Schema(name = "UpdateBlueprintRequest", description = "Nuevos puntos del plano (reemplazan a los actuales)")
+    public record UpdateBlueprintRequest(
+            @Valid
+            @Schema(description = "Lista completa de puntos del plano")
+            List<Point> points
+    ) { }
 
     @Schema(name = "NewBlueprintRequest", description = "Datos necesarios para crear un blueprint")
     public record NewBlueprintRequest(

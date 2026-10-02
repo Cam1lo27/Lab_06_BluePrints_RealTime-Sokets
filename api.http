@@ -1,5 +1,9 @@
-### Login (obtener token)
-POST http://localhost:8080/auth/login
+@base = http://localhost:8080
+@token = {{login.response.body.access_token}}
+
+### 1. Login (obtener token)
+# @name login
+POST {{base}}/auth/login
 Content-Type: application/json
 
 {
@@ -7,6 +11,45 @@ Content-Type: application/json
   "password": "student123"
 }
 
-### Listar blueprints (usar token)
-GET http://localhost:8080/api/blueprints
-Authorization: Bearer {{access_token}}
+### 2. Crear blueprint (POST)
+POST {{base}}/api/v1/blueprints
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "author": "juan",
+  "name": "plano-1",
+  "points": [ { "x": 10, "y": 10 }, { "x": 40, "y": 50 } ]
+}
+
+### 3. Listar blueprints del autor (GET)
+GET {{base}}/api/v1/blueprints/juan
+Authorization: Bearer {{token}}
+
+### 4. Consultar un blueprint (GET)
+GET {{base}}/api/v1/blueprints/juan/plano-1
+Authorization: Bearer {{token}}
+
+### 5. Actualizar blueprint: reemplaza todos sus puntos (PUT)
+PUT {{base}}/api/v1/blueprints/juan/plano-1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "points": [ { "x": 100, "y": 100 }, { "x": 200, "y": 150 }, { "x": 300, "y": 100 } ]
+}
+
+### 6. Agregar un punto (PUT .../points)
+PUT {{base}}/api/v1/blueprints/juan/plano-1/points
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "x": 350, "y": 200 }
+
+### 7. Eliminar blueprint (DELETE)
+DELETE {{base}}/api/v1/blueprints/juan/plano-1
+Authorization: Bearer {{token}}
+
+### 8. Consultar el blueprint eliminado (debe dar 404)
+GET {{base}}/api/v1/blueprints/juan/plano-1
+Authorization: Bearer {{token}}

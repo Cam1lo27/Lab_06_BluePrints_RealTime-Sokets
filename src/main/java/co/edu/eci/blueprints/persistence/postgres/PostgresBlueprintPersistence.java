@@ -7,6 +7,7 @@ import co.edu.eci.blueprints.persistence.BlueprintNotFoundException;
 import co.edu.eci.blueprints.persistence.BlueprintPersistence;
 import co.edu.eci.blueprints.persistence.BlueprintPersistenceException;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -59,12 +60,39 @@ public class PostgresBlueprintPersistence implements BlueprintPersistence {
     }
 
     @Override
+    @Transactional
     public void addPoint(String author, String name, int x, int y) throws BlueprintNotFoundException {
         BlueprintEntity entity = repo.findByAuthorAndName(author, name)
                 .orElseThrow(() -> new BlueprintNotFoundException(
                         "Blueprint not found: %s/%s".formatted(author, name)));
         entity.addPoint(new PointEntity(x, y));
         repo.save(entity);
+    }
+
+    @Override
+    @Transactional
+    public Blueprint updateBlueprint(String author, String name, List<Point> points) throws BlueprintNotFoundException {
+        BlueprintEntity entity = findEntity(author, name);
+        // orphanRemoval = true: al limpiar la lista se borran los puntos anteriores
+        entity.getPoints().clear();
+        if (points != null) {
+            for (Point p : points) {
+                entity.addPoint(new PointEntity(p.x(), p.y()));
+            }
+        }
+        return toDomain(repo.save(entity));
+    }
+
+    @Override
+    @Transactional
+    public void deleteBlueprint(String author, String name) throws BlueprintNotFoundException {
+        repo.delete(findEntity(author, name));
+    }
+
+    private BlueprintEntity findEntity(String author, String name) throws BlueprintNotFoundException {
+        return repo.findByAuthorAndName(author, name)
+                .orElseThrow(() -> new BlueprintNotFoundException(
+                        "Blueprint not found: %s/%s".formatted(author, name)));
     }
 
     private Blueprint toDomain(BlueprintEntity entity) {

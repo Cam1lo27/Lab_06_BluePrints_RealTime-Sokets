@@ -173,5 +173,61 @@ En la interfaz: selecciona **Socket.IO** o **STOMP**, define `author` y `name`, 
 
 ---
 
+## 📸 Evidencias
+
+> Las capturas están en la carpeta [`images/`](images/).
+
+### Punto 1 — CRUD completo (REST)
+
+Se agregaron al backend los endpoints que faltaban para tener el CRUD completo:
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| `GET` | `/api/v1/blueprints/{author}` | Planos de un autor |
+| `GET` | `/api/v1/blueprints/{author}/{name}` | Un plano con sus puntos |
+| `POST` | `/api/v1/blueprints` | Crear plano |
+| `PUT` | `/api/v1/blueprints/{author}/{name}` | **Nuevo:** actualizar (reemplaza los puntos) |
+| `DELETE` | `/api/v1/blueprints/{author}/{name}` | **Nuevo:** eliminar plano |
+
+Todos los endpoints exigen un JWT (`POST /auth/login`).
+
+**1.1 Endpoints disponibles en Swagger**
+
+![Endpoints en Swagger](images/p1-swagger.png)
+
+**1.2 Crear un plano — `POST` → 201**
+
+![POST crear plano](images/p1-post.png)
+
+**1.3 Actualizar el plano — `PUT` → 200**
+
+![PUT actualizar plano](images/p1-put.png)
+
+**1.4 Consultar los planos del autor — `GET` → 200**
+
+![GET planos del autor](images/p1-get.png)
+
+**1.5 Eliminar el plano — `DELETE` → 200**
+
+![DELETE eliminar plano](images/p1-delete.png)
+
+**1.6 Consultar el plano eliminado — `GET` → 404**
+
+![GET plano eliminado](images/p1-404.png)
+
+### Punto 2 — Tiempo real con STOMP (backend)
+
+_Pendiente._
+
+### Punto 3 — Front con CRUD y tiempo real
+
+_Pendiente._
+
+### Punto 4 — Colaboración en vivo (2 pestañas)
+
+_Pendiente._
+
+---
+
 ## 📄 Licencia
 MIT (o la definida por el curso/equipo).
