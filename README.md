@@ -257,7 +257,56 @@ Conexión, suscripción a tópicos, dibujo de un punto, desconexión y rechazo d
 
 ### Punto 3 — Front con CRUD y tiempo real
 
-_Pendiente._
+El front es el cliente React del **Lab P3** (React + Vite + Redux Toolkit + Axios con JWT), extendido para el Lab 06
+en la rama `lab06-tiempo-real`. Consume esta API en `http://localhost:8080`.
+
+**Qué se agregó al front**
+
+| Requisito | Implementación |
+|---|---|
+| Canvas con dibujo por clic | `BlueprintCanvas` recibe `onPointClick` y escala el clic a las coordenadas del canvas |
+| Tabla de planos y total de puntos | Tabla del autor con `reduce` para el total; se actualiza en vivo con cada punto |
+| Create | Crea un plano vacío para el autor (`POST`) y lo abre |
+| Save/Update | Guarda los puntos del plano (`PUT /api/v1/blueprints/{author}/{name}`) |
+| Delete | Elimina el plano, previa confirmación (`DELETE`) |
+| Selector de tiempo real | `Ninguno (solo REST)` / `STOMP (Spring)` / `Socket.IO` (deshabilitado: se eligió STOMP) |
+| Cliente STOMP | `@stomp/stompjs`. Se conecta con el JWT, se suscribe a `/topic/blueprints.{author}.{name}` y publica en `/app/draw` |
+
+**Comportamiento según la tecnología elegida**
+
+- **STOMP**: cada clic se publica en `/app/draw`; el servidor lo guarda y difunde el plano completo, y todas las pestañas repintan. No hace falta pulsar Save.
+- **Ninguno**: el clic agrega el punto solo en la pestaña (el título muestra *"(sin guardar)"*) y se guarda con **Save/Update**.
+- Indicador de conexión: `● Conectado` / `● Conectando...` / `● Error` / `● Sin tiempo real`.
+
+**Cómo ejecutarlo**
+
+```bash
+# en el repo del front (rama lab06-tiempo-real)
+npm install
+npm run dev        # http://localhost:5173  (usuario: student / student123)
+```
+
+**3.1 Login y tabla de planos del autor con el total de puntos**
+
+![Tabla y total](images/p3-tabla.png)
+
+**3.2 Create — plano nuevo creado y abierto**
+
+![Create](images/p3-create.png)
+
+**3.3 Dibujo por clic con STOMP conectado**
+
+![Dibujo por clic con STOMP](images/p3-dibujo-stomp.png)
+
+**3.4 Modo "Ninguno": puntos sin guardar y luego Save/Update**
+
+| Antes de guardar | Después de Save/Update |
+|---|---|
+| ![Sin guardar](images/p3-sin-guardar.png) | ![Guardado](images/p3-save.png) |
+
+**3.5 Delete — el plano desaparece de la tabla**
+
+![Delete](images/p3-delete.png)
 
 ### Punto 4 — Colaboración en vivo (2 pestañas)
 
