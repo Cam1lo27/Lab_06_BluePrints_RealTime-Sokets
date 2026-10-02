@@ -310,9 +310,13 @@ npm run dev        # http://localhost:5173  (usuario: student / student123)
 
 ### Punto 4 — Colaboración en vivo (2 pestañas)
 
-_Pendiente._
+🎥 **Video:** https://youtu.be/TR9pVj9SwFE
 
----
+El video muestra, en orden:
 
-## 📄 Licencia
-MIT (o la definida por el curso/equipo).
+1. **Conexión en tiempo real:** dos ventanas abiertas sobre el mismo plano, cada una con el indicador **● Conectado**.
+2. **Dibujo replicado en vivo:** al hacer clic en el canvas de una ventana, el punto aparece inmediatamente en la otra.
+3. **Aislamiento por plano:** al cambiar una de las ventanas a un plano distinto, los puntos dibujados en una ya no se reflejan en la otra, confirmando que cada plano es un canal independiente.
+4. **Consistencia de datos:** al volver ambas ventanas al mismo plano y refrescar, las dos muestran exactamente la misma cantidad de puntos.
+5. **Eliminación sincronizada:** al eliminar el plano desde una ventana y recargar la otra, el plano eliminado ya no aparece.
+6. **Logs del backend:** se muestran los logs `[RT]` del servidor registrando las conexiones y los eventos de dibujo en tiempo real.
