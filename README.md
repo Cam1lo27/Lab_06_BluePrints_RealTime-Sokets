@@ -1,4 +1,5 @@
 # Lab P4 — BluePrints en Tiempo Real (Sockets & STOMP)
+# Nicolas Duarte y Camilo Vivas
 
 > **Repositorio:** `DECSIS-ECI/Lab_P4_BluePrints_RealTime-Sokets`  
 > **Front:** React + Vite (Canvas, CRUD, y selector de tecnología RT)  
